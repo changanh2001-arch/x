@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilingual TOEIC Platform (EN - CN)</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .container { width: 100%; max-width: 800px; }
+
+        /* Navigation Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
+        .tab-btn {
+            flex: 1; padding: 12px; border: none; background: #e2e8f0;
+            cursor: pointer; font-weight: bold; border-radius: 8px; font-size: 1rem;
+            transition: 0.2s;
+        }
+        .tab-btn.active { background: var(--primary); color: white; }
+
+        /* Content Cards */
+        .card {
+            background: var(--card); padding: 25px; border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-bottom: 20px;
+        }
+
+        .word-title { font-size: 2.2rem; color: var(--primary); font-weight: bold; margin: 0; }
+        .sub-title { font-size: 1.1rem; color: #64748b; margin: 5px 0 15px 0; }
+        .example-box { background: #f1f5f9; padding: 12px; border-left: 4px solid var(--primary); margin: 10px 0; }
+
+        /* Practice Section */
+        .option-btn {
+            display: block; width: 100%; text-align: left; padding: 12px;
+            margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 6px;
+            background: white; cursor: pointer; font-size: 1rem;
+            transition: 0.2s;
+        }
+        .option-btn:hover { background: #f1f5f9; border-color: var(--primary); }
+        .explanation { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; margin-top: 15px; }
+
+        /* Pronunciation Widget */
+        .speech-widget { text-align: center; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; }
+        .mic-btn {
+            background: var(--danger); color: white; border: none; width: 60px; height: 60px;
+            border-radius: 50%; font-size: 1.5rem; cursor: pointer; transition: 0.2s; margin-bottom: 10px;
+        }
+        .mic-btn.recording { background: var(--success); animation: pulse 1.5s infinite; }
+        .result { font-weight: bold; margin-top: 10px; font-size: 1.1rem; }
+        
+        .action-btn {
+            width: 100%; padding: 12px; background: #0f172a; color: white; border: none; 
+            border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+        .action-btn:hover { background: #1e293b; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header style="text-align: center; margin-bottom: 30px;">
+        <h2>TOEIC Song Ngữ / 双语 TOEIC</h2>
+        <p>Học Phát âm, Từ vựng, Ngữ pháp & Luyện tập trực tiếp trên Trình duyệt</p>
+    </header>
+
+    <!-- HỆ THỐNG TAB MENU -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('vocab')">Từ Vựng (Vocab)</button>
+        <button class="tab-btn" onclick="switchTab('grammar')">Ngữ Pháp (Grammar)</button>
+        <button class="tab-btn" onclick="switchTab('practice')">Luyện Tập (Practice)</button>
+    </div>
+
+    <!-- MODULE 1: TỪ VỰNG & PHÁT ÂM -->
+    <div id="vocab-module" class="tab-content">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h3 class="word-title" id="v-en">Negotiate</h3>
+                    <p class="sub-title" id="v-en-ipa">/nəˈɡoʊ.ʃi.eɪt/</p>
+                </div>
+                <div style="text-align: right;">
+                    <h3 class="word-title" style="color:#0f172a" id="v-zh">谈判</h3>
+                    <p class="sub-title" id="v-zh-pinyin">tánpán</p>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <strong>EN:</strong> <span id="v-ex-en">The committee hopes to negotiate a deal soon.</span>
+            </div>
+            <div class="example-box">
+                <strong>CN:</strong> <span id="v-ex-zh">委员会希望能尽快谈判达成协议。</span>
+            </div>
+
+            <hr style="margin:20px 0; border:0; border-top:1px solid #e2e8f0;">
+
+            <!-- AI Sửa phát âm -->
+            <div class="speech-widget">
+                <p style="margin-top:0; font-weight:600;">Chọn ngôn ngữ bạn muốn luyện đọc từ phía trên:</p>
+                <div style="margin-bottom:15px; display:flex; gap:10px; justify-content:center;">
+                    <button onclick="practiceSpeech('en-US')" style="padding:8px 15px; border-radius:5px; border:1px solid #cbd5e1; cursor:pointer;">Luyện Tiếng Anh 🇺🇸</button>
+                    <button onclick="practiceSpeech('zh-CN')" style="padding:8px 15px; border-radius:5px; border:1px solid #cbd5e1; cursor:pointer;">Luyện Tiếng Trung 🇨🇳</button>
+                </div>
+                <button class="mic-btn" id="mic-btn" disabled>🎙️</button>
+                <div id="speech-status">Bấm nút ngôn ngữ phía trên để kích hoạt mic...</div>
+                <div id="speech-result" class="result"></div>
+            </div>
+            
+            <button class="action-btn" onclick="nextVocab()">Từ Tiếp Theo ➡️</button>
+        </div>
+    </div>
+
+    <!-- MODULE 2: NGỮ PHÁP -->
+    <div id="grammar-module" class="tab-content" style="display:none;">
+        <div class="card" id="grammar-card">
+            <!-- Nội dung ngữ pháp render tự động -->
+        </div>
+        <button class="action-btn" onclick="nextGrammar()">Chủ Điểm Tiếp Theo ➡️</button>
+    </div>
+
+    <!-- MODULE 3: BÀI TẬP TRẮC NGHIỆM -->
+    <div id="practice-module" class="tab-content" style="display:none;">
+        <div class="card">
+            <p style="font-weight: bold; font-size: 1.1rem; margin-top:0;" id="p-question">Đang tải câu hỏi...</p>
+            <div id="p-options"></div>
+            <div id="p-explanation" class="explanation" style="display:none;"></div>
+            <button class="action-btn" onclick="nextPractice()">Câu Tiếp Theo ➡️</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. KHO DỮ LIỆU MẪU TOEIC (DATA MODULE)
+    // ==========================================
+    const toeicData = {
+        vocabulary: [
+            {
+                en: "Negotiate",
+                en_ipa: "/nəˈɡoʊ.ʃi.eɪt/",
+                zh: "谈判",
+                zh_pinyin: "tánpán",
+                example_en: "The committee hopes to negotiate a deal soon.",
+                example_zh: "委员会希望能尽快谈判达成协议。"
+            },
+            {
+                en: "Implement",
+                en_ipa: "/ˈɪm.plə.ment/",
+                zh: "实施",
+                zh_pinyin: "shíshī",
+                example_en: "We need to implement the new safety regulations.",
+                example_zh: "我们需要实施新的安全规章。"
+            },
+            {
+                en: "Submit",
+                en_ipa: "/səbˈmɪt/",
+                zh: "提交",
+                zh_pinyin: "tíjiāo",
+                example_en: "Please submit your report by Friday afternoon.",
+                example_zh: "请在周五下午之前提交您的报告。"
+            }
+        ],
+        grammar: [
+            {
+                title_en: "Passive Voice",
+                title_zh: "被动语态 (Thể bị động)",
+                desc_en: "Form: Be + Past Participle (V3/-ed). Used when the action itself is more important than the doer.",
+                desc_zh: "结构: Be + 过去分词. 当动词本身比执行者更重要时使用。",
+                example_en: "The financial report was submitted by the marketing team.",
+                example_zh: "财务报告已由营销团队提交。"
+            },
+            {
+                title_en: "Conditional Sentences Type 1",
+                title_zh: "条件句第一类 (Câu điều kiện loại 1)",
+                desc_en: "Form: If + Present Simple, Will + Verb. Used for real, possible situations in the future.",
+                desc_zh: "结构: If + 一般现在时, Will + 动词原形. 用于将来可能发生的事实。",
+                example_en: "If the manager signs the contract today, we will start tomorrow.",
+                example_zh: "如果经理今天签合同，我们明天就动工。"
+            }
+        ],
+        practice: [
+            {
+                question: "Ms. Cho ------ the revised budget proposal to the board yesterday.",
+                options: ["A. submit", "B. submitted", "C. submission", "D. submissive"],
+                correct: "B",
+                explanation_en: "The keyword 'yesterday' indicates a past action, so the past tense 'submitted' (B) is required.",
+                explanation_zh: "关键词 'yesterday' 表示过去发生的动作，因此需要使用过去时态 'submitted' (B)。"
+            },
+            {
+                question: "The marketing director is looking for a ------ solution to increase online sales.",
+                options: ["A. create", "B. creatively", "C. creative", "D. creativity"],
+                correct: "C",
+                explanation_en: "The position before the noun 'solution' requires an adjective to modify it. 'Creative' (C) is the correct form.",
+                explanation_zh: "名词 'solution' 前面的位置需要一个形容词。'Creative' (C) 是形容词形式。"
+            }
+        ]
+    };
+
+    // ==========================================
+    // 2. MODULE AI NHẬN DIỆN GIỌNG NÓI (SPEECH MODULE)
+    // ==========================================
+    class SpeechModule {
+        constructor() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Trình duyệt này không hỗ trợ Web Speech API. Vui lòng chuyển sang Google Chrome!");
+                this.recognition = null;
+            } else {
+                this.recognition = new SpeechRecognition();
+                this.recognition.interimResults = false;
+                this.recognition.maxAlternatives = 1;
+            }
+        }
+
+        listen(langCode, targetWord, onStart, onResult, onError) {
+            if (!this.recognition) return;
+
+            this.recognition.lang = langCode;
+            
+            this.recognition.onstart = () => onStart();
+            
+            this.recognition.onresult = (event) => {
+                const userSpeech = event.results[0][0].transcript.toLowerCase().trim();
+                const cleanTarget = targetWord.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+                const isMatch = userSpeech.includes(cleanTarget) || cleanTarget.includes(userSpeech);
+                onResult(userSpeech, isMatch);
+            };
+
+            this.recognition.onerror = (event) => onError(event.error);
+            this.recognition.start();
+        }
+    }
+
+    const AI_Speech = new SpeechModule();
+
+    // ==========================================
+    // 3. ĐIỀU KHIỂN GIAO DIỆN & LOGIC ỨNG DỤNG
+    // ==========================================
+    let vocabIdx = 0;
+    let grammarIdx = 0;
+    let practiceIdx = 0;
+
+    // Chuyển đổi qua lại giữa các Tab
+    function switchTab(moduleName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(`${moduleName}-module`).style.display = 'block';
+        event.currentTarget.classList.add('active');
+    }
+
+    // --- Xử lý phần Từ Vựng ---
+    function renderVocab() {
+        const item = toeicData.vocabulary[vocabIdx];
+        document.getElementById('v-en').innerText = item.en;
+        document.getElementById('v-en-ipa').innerText = item.en_ipa;
+        document.getElementById('v-zh').innerText = item.zh;
+        document.getElementById('v-zh-pinyin').innerText = item.zh_pinyin;
+        document.getElementById('v-ex-en').innerText = item.example_en;
+        document.getElementById('v-ex-zh').innerText = item.example_zh;
+        document.getElementById('speech-result').innerText = '';
+        document.getElementById('speech-status').innerText = 'Bấm nút ngôn ngữ phía trên để kích hoạt mic...';
+        document.getElementById('mic-btn').classList.remove('recording');
+    }
+
+    function nextVocab() {
+        vocabIdx = (vocabIdx + 1) % toeicData.vocabulary.length;
+        renderVocab();
+    }
+
+    function practiceSpeech(lang) {
+        const item = toeicData.vocabulary[vocabIdx];
+        const targetWord = (lang === 'en-US') ? item.en : item.zh;
+        
+        const micBtn = document.getElementById('mic-btn');
+        const statusEl = document.getElementById('speech-status');
+        const resultEl = document.getElementById('speech-result');
+
+        AI_Speech.listen(
+            lang, 
+            targetWord,
+            () => {
+                micBtn.classList.add('recording');
+                statusEl.innerText = `🎙️ AI đang nghe tiếng ${(lang === 'en-US' ? 'Anh' : 'Trung')}... Hãy đọc lớn từ trên!`;
+                resultEl.innerText = '';
+            },
+            (speechText, isMatch) => {
+                micBtn.classList.remove('recording');
+                statusEl.innerText = 'Phân tích hoàn tất.';
+                if(isMatch) {
+                    resultEl.style.color = 'var(--success)';
+                    resultEl.innerHTML = `🎉 Chính xác! Bạn đọc: "${speechText}"`;
+                } else {
+                    resultEl.style.color = 'var(--danger)';
+                    resultEl.innerHTML = `❌ Chưa chuẩn. Bạn đọc: "${speechText}" <br> (Yêu cầu: "${targetWord}")`;
+                }
+            },
+            (error) => {
+                micBtn.classList.remove('recording');
+                statusEl.innerText = 'Lỗi thu âm: ' + error;
+            }
+        );
+    }
+
+    // --- Xử lý phần Ngữ Pháp ---
+    function renderGrammar() {
+        const item = toeicData.grammar[grammarIdx];
+        const container = document.getElementById('grammar-card');
+        container.innerHTML = `
+            <h3 class="word-title" style="font-size:1.8rem">${item.title_en}</h3>
+            <h4 style="margin:5px 0 20px 0; color:#475569">${item.title_zh}</h4>
+            <p><strong>English Grammar:</strong> ${item.desc_en}</p>
+            <p><strong>中文解析 (Giải thích):</strong> ${item.desc_zh}</p>
+            <div class="example-box"><strong>Ví dụ (EN):</strong> ${item.example_en}</div>
+            <div class="example-box"><strong>Ví dụ (CN):</strong> ${item.example_zh}</div>
+        `;
+    }
+
+    function nextGrammar() {
+        grammarIdx = (grammarIdx + 1) % toeicData.grammar.length;
+        renderGrammar();
+    }
+
+    // --- Xử lý phần Bài Tập ---
+    function renderPractice() {
+        const item = toeicData.practice[practiceIdx];
+        document.getElementById('p-question').innerText = `Q: ${item.question}`;
+        document.getElementById('p-explanation').style.display = 'none';
+        
+        const optionsContainer = document.getElementById('p-options');
+        optionsContainer.innerHTML = '';
+        
+        item.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(opt.charAt(0), item);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, item) {
+        const expEl = document.getElementById('p-explanation');
+        expEl.style.display = 'block';
+        if (selected === item.correct) {
+            expEl.innerHTML = `<strong style="color:var(--success)">🎉 CHÍNH XÁC / 正确!</strong><br><br><strong>Giải thích (EN):</strong> ${item.explanation_en}<br><strong>解析 (CN):</strong> ${item.explanation_zh}`;
+        } else {
+            expEl.innerHTML = `<strong style="color:var(--danger)">❌ SAI RỒI / 错误 (Đáp án đúng là ${item.correct})</strong><br><br><strong>Giải thích (EN):</strong> ${item.explanation_en}<br><strong>解析 (CN):</strong> ${item.explanation_zh}`;
+        }
+    }
+
+    function nextPractice() {
+        practiceIdx = (practiceIdx + 1) % toeicData.practice.length;
+        renderPractice();
+    }
+
+    // Khởi chạy hệ thống tự động tải dữ liệu ban đầu
+    window.onload = () => {
+        renderVocab();
+        renderGrammar();
+        renderPractice();
+    };
+</script>
+
+</body>
+</html>
